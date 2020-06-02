@@ -324,7 +324,7 @@ func TestAccess(t *testing.T) {
 		router.getAdminEndpoint(tkn, auth.PasswordCredentials, http.StatusUnauthorized)
 	})
 
-	t.Run("Reject tokens from an unkown source", func(t *testing.T) {
+	t.Run("Reject tokens from an unknown source", func(t *testing.T) {
 		router := initMockService(t, users, time.Hour, "www.myd0main.com", pk, defaultID)
 		otherPk, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 		require.NoError(t, err)

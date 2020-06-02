@@ -71,6 +71,9 @@ func ReadRemotePublicKey(url string) (*ecdsa.PublicKey, error) {
 	defer resp.Body.Close()
 
 	key, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
 	return PemDecodePublicKey(string(key))
 }
