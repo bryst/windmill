@@ -32,7 +32,7 @@ type GinAuthConfig struct {
 	UsrAuthorizer      Authorizer
 	ClientAuthorizer   Authorizer
 	ScopeProvider      ScopeProvider
-	ClientValidator    UserAudValidator
+	AudValidator       UserAudValidator
 	ClaimProvider      ClaimProvider
 	SigningKey         *ecdsa.PrivateKey
 	AccessTknDuration  time.Duration
@@ -48,7 +48,7 @@ func BasicGinAuth(c *GinAuthConfig) (GinAuth, error) {
 		SignerIdentifier:   c.AppId})
 
 	authorizers := map[string]Authorizer{PasswordCredentials: c.UsrAuthorizer, ClientCredentials: c.ClientAuthorizer}
-	return NewGinAuth(authorizers, c.ClaimProvider, signer, c.ScopeProvider, c.ClientValidator)
+	return NewGinAuth(authorizers, c.ClaimProvider, signer, c.ScopeProvider, c.AudValidator)
 }
 
 func NewGinAuth(authorizers map[string]Authorizer, clProv ClaimProvider,
@@ -123,7 +123,7 @@ func (ginAuth *ginAuthServer) authorize(ctx *gin.Context) {
 
 	if !tknRegex.MatchString(authHeader) {
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized,
-			gin.H{"error": "unable to authenticate request. Invalid 'Authorization' header2"})
+			gin.H{"error": "unable to authenticate request. Invalid 'Authorization' header"})
 		return
 	}
 

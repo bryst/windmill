@@ -95,7 +95,7 @@ func initMockService(t *testing.T, users []demoUser, duration time.Duration, dom
 		UsrAuthorizer:      inMemory.authorizeHumanUser,
 		ClientAuthorizer:   inMemory.authorizeMachineUser,
 		ScopeProvider:      inMemory.getScopes,
-		ClientValidator:    inMemory.validateClient,
+		AudValidator:       inMemory.validateClient,
 		SigningKey:         pk,
 		AccessTknDuration:  duration,
 		RefreshTknDuration: duration,
