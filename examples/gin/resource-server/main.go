@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func main()  {
+func main() {
 	router := gin.New()
 	api := router.Group("/api")
 	v1 := api.Group("/v1")
@@ -27,7 +27,6 @@ func main()  {
 	admin.GET("", auth.WithScopes(func(context *gin.Context) {
 		context.JSON(http.StatusOK, gin.H{"health": "Hello there! You are an Admin"})
 	}, "admin super-admin"))
-
 
 	v1.GET("/hello", auth.WithScopes(func(context *gin.Context) {
 		context.JSON(http.StatusOK, gin.H{"health": "Hello there common user!"})
