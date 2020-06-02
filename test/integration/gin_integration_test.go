@@ -48,20 +48,20 @@ func (id inMemoryData) authorizeMachineUser(_ auth.Credentials) error {
 	return nil
 }
 
-func (id inMemoryData) validateClient(credentials auth.Credentials, clientId string) (bool, error) {
-	return "forbidden-aud" != clientId, nil
+func (id inMemoryData) validateClient(_ string, _ string, resourceId string) (bool, error) {
+	return "forbidden-aud" != resourceId, nil
 }
 
-func (id inMemoryData) getScopes(uc auth.Credentials, rs auth.Scopes) (auth.Scopes, error) {
-	if uc.Grant == auth.ClientCredentials {
+func (id inMemoryData) getScopes(userId string, grant string, _ string, requested auth.Scopes) (auth.Scopes, error) {
+	if grant == auth.ClientCredentials {
 		return []string{"admin"}, nil
 	}
-	u, ok := id.users[uc.Id]
+	u, ok := id.users[userId]
 	if !ok {
 		return nil, auth.InvalidUser(errors.New("i dont know this person"))
 	}
 
-	for _, s := range rs {
+	for _, s := range requested {
 		if s == u.Scopes {
 			return []string{u.Scopes}, nil
 		}

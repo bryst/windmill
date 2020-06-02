@@ -32,10 +32,10 @@ const AuthorizationHeader = "Authorization"
 type Authorizer func(uc Credentials) error
 
 // ScopeProvider retrieves, from the requested scopes, the ones that are actually granted for the user
-type ScopeProvider func(uc Credentials, requested Scopes) (Scopes, error)
+type ScopeProvider func(userId string, grant string, resourceId string, requested Scopes) (Scopes, error)
 
-// ClientValidator checks if the given credentials are allowed to have access to the client
-type ClientValidator func(credentials Credentials, clientId string) (bool, error)
+// UserAudValidator checks if the given credentials are allowed to have access to the resource
+type UserAudValidator func(userId string, grant string, resourceId string) (bool, error)
 
 // TokenCredentials access_token + refresh_token (signed)
 type TokenCredentials struct {
@@ -56,7 +56,7 @@ type TokenServerConfig struct {
 	Authorizers     map[string]Authorizer
 	Signer          TokenSigner
 	ScopesProvider  ScopeProvider
-	ClientValidator ClientValidator
+	ClientValidator UserAudValidator
 	ClaimProvider   ClaimProvider
 }
 
@@ -64,7 +64,7 @@ type authServer struct {
 	authorizers map[string]Authorizer
 	signer      TokenSigner
 	sProvider   ScopeProvider
-	cValidator  ClientValidator
+	cValidator  UserAudValidator
 	cProvider   ClaimProvider
 	pubKey      string
 }
@@ -111,7 +111,7 @@ func (as *authServer) Authorize(credentials Credentials, scopes Scopes, aud stri
 		return nil, err
 	}
 
-	s, err := as.sProvider(credentials, scopes)
+	s, err := as.sProvider(credentials.Id, credentials.Grant, aud, scopes)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (as *authServer) Refresh(refreshToken string, scopes Scopes) (*TokenCredent
 		return nil, err
 	}
 
-	s, err := as.sProvider(*c, scopes)
+	s, err := as.sProvider(c.Id, c.Grant, aud, scopes)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func (as *authServer) AccessToken(refreshToken string, scopes Scopes) (string, e
 		return "", err
 	}
 
-	s, err := as.sProvider(*c, scopes)
+	s, err := as.sProvider(c.Id, c.Grant, aud, scopes)
 	if err != nil {
 		return "", err
 	}
@@ -179,7 +179,7 @@ func (as *authServer) createCredentials(senderId string, scopes Scopes, grantTyp
 }
 
 func (as *authServer) checkAudience(aud string, credentials Credentials) error {
-	audCheck, err := as.cValidator(credentials, aud)
+	audCheck, err := as.cValidator(credentials.Id, credentials.Grant, aud)
 	if err != nil {
 		return Unexpected(errors.New("invalid grant type"))
 	}

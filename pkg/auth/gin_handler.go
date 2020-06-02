@@ -32,7 +32,7 @@ type GinAuthConfig struct {
 	UsrAuthorizer      Authorizer
 	ClientAuthorizer   Authorizer
 	ScopeProvider      ScopeProvider
-	ClientValidator    ClientValidator
+	ClientValidator    UserAudValidator
 	ClaimProvider      ClaimProvider
 	SigningKey         *ecdsa.PrivateKey
 	AccessTknDuration  time.Duration
@@ -52,7 +52,7 @@ func BasicGinAuth(c *GinAuthConfig) (GinAuth, error) {
 }
 
 func NewGinAuth(authorizers map[string]Authorizer, clProv ClaimProvider,
-	signer TokenSigner, scopes ScopeProvider, clients ClientValidator) (GinAuth, error) {
+	signer TokenSigner, scopes ScopeProvider, clients UserAudValidator) (GinAuth, error) {
 	tknServerConfig := &TokenServerConfig{
 		Authorizers:     authorizers,
 		Signer:          signer,
