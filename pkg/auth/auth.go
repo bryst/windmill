@@ -16,15 +16,21 @@ func (s Scopes) ToString() string {
 
 // Credentials data to identify an user
 type Credentials struct {
-	Id       string
+	ID       string
 	Password string
 	Grant    string
 }
 
+// PasswordCredentials is a grant type
 const PasswordCredentials = "password_credentials"
+
+// ClientCredentials is a grant type
 const ClientCredentials = "client_credentials"
 
+// GrantTypeHeader use to indicate the grant type in the request headers
 const GrantTypeHeader = "GRANT-TYPE"
+
+// AuthorizationHeader http Authorization header
 const AuthorizationHeader = "Authorization"
 
 // Authorizer should try to authorize an user/client using the provided credentials.
@@ -32,10 +38,10 @@ const AuthorizationHeader = "Authorization"
 type Authorizer func(uc Credentials) error
 
 // ScopeProvider retrieves, from the requested scopes, the ones that are actually granted for the user
-type ScopeProvider func(userId string, grant string, resourceId string, requested Scopes) (Scopes, error)
+type ScopeProvider func(userID string, grant string, resourceID string, requested Scopes) (Scopes, error)
 
 // UserAudValidator checks if the given credentials are allowed to have access to the resource
-type UserAudValidator func(userId string, grant string, resourceId string) (bool, error)
+type UserAudValidator func(userID string, grant string, resourceID string) (bool, error)
 
 // TokenCredentials access_token + refresh_token (signed)
 type TokenCredentials struct {
@@ -111,12 +117,12 @@ func (as *authServer) Authorize(credentials Credentials, scopes Scopes, aud stri
 		return nil, err
 	}
 
-	s, err := as.sProvider(credentials.Id, credentials.Grant, aud, scopes)
+	s, err := as.sProvider(credentials.ID, credentials.Grant, aud, scopes)
 	if err != nil {
 		return nil, err
 	}
 
-	return as.createCredentials(credentials.Id, s, credentials.Grant, aud)
+	return as.createCredentials(credentials.ID, s, credentials.Grant, aud)
 }
 
 // Refresh given a refresh token attempts to generate a new set of TokenCredentials
@@ -127,12 +133,12 @@ func (as *authServer) Refresh(refreshToken string, scopes Scopes) (*TokenCredent
 		return nil, err
 	}
 
-	s, err := as.sProvider(c.Id, c.Grant, aud, scopes)
+	s, err := as.sProvider(c.ID, c.Grant, aud, scopes)
 	if err != nil {
 		return nil, err
 	}
 
-	return as.createCredentials(c.Id, s, c.Grant, aud)
+	return as.createCredentials(c.ID, s, c.Grant, aud)
 }
 
 // AccessToken given a refresh token attempts to generate ONLY a new Access Token
@@ -143,12 +149,12 @@ func (as *authServer) AccessToken(refreshToken string, scopes Scopes) (string, e
 		return "", err
 	}
 
-	s, err := as.sProvider(c.Id, c.Grant, aud, scopes)
+	s, err := as.sProvider(c.ID, c.Grant, aud, scopes)
 	if err != nil {
 		return "", err
 	}
 
-	return as.signer.GetAccessToken(c.Id, s, c.Grant, aud)
+	return as.signer.GetAccessToken(c.ID, s, c.Grant, aud)
 }
 
 // GetEncodedPubKey retrieves a pem encoded string with the pub key of the server
@@ -156,18 +162,18 @@ func (as *authServer) GetEncodedPubKey() string {
 	return as.pubKey
 }
 
-func (as *authServer) createCredentials(senderId string, scopes Scopes, grantType string, aud string) (*TokenCredentials, error) {
-	additionalClaims, err := as.cProvider(senderId, aud)
+func (as *authServer) createCredentials(senderID string, scopes Scopes, grantType string, aud string) (*TokenCredentials, error) {
+	additionalClaims, err := as.cProvider(senderID, aud)
 	if err != nil {
 		return nil, err
 	}
 
-	accessToken, err := as.signer.GetAccessToken(senderId, scopes, grantType, aud, additionalClaims...)
+	accessToken, err := as.signer.GetAccessToken(senderID, scopes, grantType, aud, additionalClaims...)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := as.signer.GetRefreshToken(senderId, grantType, aud, additionalClaims...)
+	refreshToken, err := as.signer.GetRefreshToken(senderID, grantType, aud, additionalClaims...)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +185,7 @@ func (as *authServer) createCredentials(senderId string, scopes Scopes, grantTyp
 }
 
 func (as *authServer) checkAudience(aud string, credentials Credentials) error {
-	audCheck, err := as.cValidator(credentials.Id, credentials.Grant, aud)
+	audCheck, err := as.cValidator(credentials.ID, credentials.Grant, aud)
 	if err != nil {
 		return Unexpected(errors.New("invalid grant type"))
 	}
@@ -204,7 +210,7 @@ func (as *authServer) parseRefreshToken(token string) (*Credentials, string, err
 	aud := claims["aud"].(string)
 	id := claims["sub"].(string)
 
-	return &Credentials{Id: id, Grant: gType}, aud, nil
+	return &Credentials{ID: id, Grant: gType}, aud, nil
 }
 
 func checkRefreshScope(scopes []string) bool {

@@ -18,7 +18,7 @@ type Claim struct {
 type ClaimProvider func(identifier string, aud string) ([]Claim, error)
 
 type tokenClaims struct {
-	UserId    string
+	UserID    string
 	Scopes    string
 	Exp       time.Duration
 	GrantType string
@@ -27,8 +27,8 @@ type tokenClaims struct {
 
 // TokenSigner abstraction to handle token creation
 type TokenSigner interface {
-	GetAccessToken(userId string, scopes Scopes, grantType string, aud string, claims ...Claim) (string, error)
-	GetRefreshToken(userId string, grantType string, aud string, claims ...Claim) (string, error)
+	GetAccessToken(userID string, scopes Scopes, grantType string, aud string, claims ...Claim) (string, error)
+	GetRefreshToken(userID string, grantType string, aud string, claims ...Claim) (string, error)
 	ParseToken(token string) (jwt.MapClaims, error)
 	GetSigningKey() ecdsa.PrivateKey
 }
@@ -37,7 +37,7 @@ type tokenSigner struct {
 	privateKey           *ecdsa.PrivateKey
 	accessTokenDuration  time.Duration
 	refreshTokenDuration time.Duration
-	externalId           string
+	externalID           string
 }
 
 // SignerConfig configuration for a new TokenSigner
@@ -54,15 +54,16 @@ func NewTokenSigner(c *SignerConfig) TokenSigner {
 		privateKey:           c.SigningKey,
 		accessTokenDuration:  c.AccessTknDuration,
 		refreshTokenDuration: c.RefreshTknDuration,
-		externalId:           c.SignerIdentifier}
+		externalID:           c.SignerIdentifier}
 }
 
+// RefreshTokenScope scope assign to the refresh token
 const RefreshTokenScope = "auth/refresh"
 
 // GetAccessToken generates a signed access_token
-func (ts *tokenSigner) GetAccessToken(userId string, scopes Scopes, grantType string, aud string, claims ...Claim) (string, error) {
+func (ts *tokenSigner) GetAccessToken(userID string, scopes Scopes, grantType string, aud string, claims ...Claim) (string, error) {
 	return ts.signToken(&tokenClaims{
-		UserId:    userId,
+		UserID:    userID,
 		Scopes:    scopes.ToString(),
 		Exp:       ts.accessTokenDuration,
 		GrantType: grantType,
@@ -70,9 +71,9 @@ func (ts *tokenSigner) GetAccessToken(userId string, scopes Scopes, grantType st
 }
 
 // GetRefreshToken generates a signed refresh_token
-func (ts *tokenSigner) GetRefreshToken(userId string, grantType string, aud string, claims ...Claim) (string, error) {
+func (ts *tokenSigner) GetRefreshToken(userID string, grantType string, aud string, claims ...Claim) (string, error) {
 	return ts.signToken(&tokenClaims{
-		UserId:    userId,
+		UserID:    userID,
 		Scopes:    RefreshTokenScope,
 		Exp:       ts.refreshTokenDuration,
 		GrantType: grantType,
@@ -101,9 +102,9 @@ func (ts *tokenSigner) signToken(claims *tokenClaims, additionalClaims []Claim) 
 	}
 
 	claimMap["scope"] = claims.Scopes
-	claimMap["sub"] = claims.UserId
+	claimMap["sub"] = claims.UserID
 	claimMap["aud"] = claims.Aud
-	claimMap["iss"] = ts.externalId
+	claimMap["iss"] = ts.externalID
 	claimMap["exp"] = time.Now().Add(claims.Exp).Unix()
 	claimMap["grant_type"] = claims.GrantType
 
@@ -116,9 +117,10 @@ func (ts *tokenSigner) getAudience(aud string) string {
 	if len(aud) > 0 {
 		return aud
 	}
-	return ts.externalId
+	return ts.externalID
 }
 
+// GetKeyFunc retrieves a function which validate the signing method of a token and returns the public key
 func GetKeyFunc(pubKey *ecdsa.PublicKey) func(token *jwt.Token) (interface{}, error) {
 	return func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodECDSA); !ok {

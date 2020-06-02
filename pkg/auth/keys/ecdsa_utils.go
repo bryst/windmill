@@ -10,42 +10,38 @@ import (
 
 // PemEncodePublicKey transforms a *ecdsa.PublicKey into a pem encoded string
 func PemEncodePublicKey(pubKey *ecdsa.PublicKey) (string, error) {
-	if encoded, err := x509.MarshalPKIXPublicKey(pubKey); err != nil {
+	encoded, err := x509.MarshalPKIXPublicKey(pubKey)
+	if err != nil {
 		return "", err
-	} else {
-		return string(pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: encoded})), nil
 	}
+	return string(pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: encoded})), nil
 }
 
 // PemDecodePublicKey transforms a pem encoded string into a *ecdsa.PublicKey
 func PemDecodePublicKey(pubKey string) (*ecdsa.PublicKey, error) {
 	decoded, _ := pem.Decode([]byte(pubKey))
 	keyBytes := decoded.Bytes
-	if publicKey, err := x509.ParsePKIXPublicKey(keyBytes); err != nil {
+	publicKey, err := x509.ParsePKIXPublicKey(keyBytes)
+	if err != nil {
 		return nil, err
-	} else {
-		return publicKey.(*ecdsa.PublicKey), nil
 	}
+	return publicKey.(*ecdsa.PublicKey), nil
 }
 
 // PemEncodePrivateKey transforms a *ecdsa.PrivateKey into a pem encoded string
 func PemEncodePrivateKey(pvKey *ecdsa.PrivateKey) (string, error) {
-	if encoded, err := x509.MarshalECPrivateKey(pvKey); err != nil {
+	encoded, err := x509.MarshalECPrivateKey(pvKey)
+	if err != nil {
 		return "", err
-	} else {
-		return string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: encoded})), nil
 	}
+	return string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: encoded})), nil
 }
 
 // PemDecodePrivateKey transforms a pem encoded string into a *ecdsa.PrivateKey
 func PemDecodePrivateKey(pvKey string) (*ecdsa.PrivateKey, error) {
 	decoded, _ := pem.Decode([]byte(pvKey))
 	keyBytes := decoded.Bytes
-	if privateKey, err := x509.ParseECPrivateKey(keyBytes); err != nil {
-		return nil, err
-	} else {
-		return privateKey, nil
-	}
+	return x509.ParseECPrivateKey(keyBytes)
 }
 
 // ReadPrivateKeyFromFile reads a file containing a pem encoded key into a *ecdsa.PrivateKey
@@ -54,11 +50,7 @@ func ReadPrivateKeyFromFile(path string) (*ecdsa.PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	if k, err := PemDecodePrivateKey(string(content)); err != nil {
-		return nil, err
-	} else {
-		return k, nil
-	}
+	return PemDecodePrivateKey(string(content))
 }
 
 // ReadPublicKeyFromFile reads a file containing a pem encoded key into a *ecdsa.PublicKey
@@ -67,11 +59,7 @@ func ReadPublicKeyFromFile(path string) (*ecdsa.PublicKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	if k, err := PemDecodePublicKey(string(content)); err != nil {
-		return nil, err
-	} else {
-		return k, nil
-	}
+	return PemDecodePublicKey(string(content))
 }
 
 // ReadRemotePublicKey reads a pem encoded key from an url into a *ecdsa.PublicKey
@@ -84,9 +72,5 @@ func ReadRemotePublicKey(url string) (*ecdsa.PublicKey, error) {
 
 	key, err := ioutil.ReadAll(resp.Body)
 
-	if k, err := PemDecodePublicKey(string(key)); err != nil {
-		return nil, err
-	} else {
-		return k, nil
-	}
+	return PemDecodePublicKey(string(key))
 }

@@ -33,7 +33,7 @@ func main() {
 		SigningKey:         key,
 		AccessTknDuration:  time.Hour,
 		RefreshTknDuration: time.Hour * 24,
-		AppId:              "AUTH:SERVER"})
+		AppID:              "AUTH:SERVER"})
 
 	if err != nil {
 		log.Fatal(err)
@@ -80,7 +80,7 @@ type mockImplementation struct {
 }
 
 func (dh mockImplementation) authorize(uc auth.Credentials) error {
-	pwd, ok := dh.userRepo[uc.Id]
+	pwd, ok := dh.userRepo[uc.ID]
 	if !ok {
 		return auth.InvalidUser(errors.New("unknown user"))
 	}
@@ -90,11 +90,11 @@ func (dh mockImplementation) authorize(uc auth.Credentials) error {
 	return nil
 }
 
-func (dh mockImplementation) getScopes(userId string, grant string, aud string, requested auth.Scopes) (auth.Scopes, error) {
+func (dh mockImplementation) getScopes(userID string, grant string, aud string, requested auth.Scopes) (auth.Scopes, error) {
 	// you could also have different scopes for the same user for different  resources,
 	// or give different scopes depending the grant type.
 	// Since this is a mock version, we are ignoring those fields
-	scopes, ok := dh.userScopes[userId]
+	scopes, ok := dh.userScopes[userID]
 	if !ok {
 		return nil, auth.InvalidUser(errors.New("unknown user"))
 	}
@@ -109,9 +109,9 @@ func (dh mockImplementation) getScopes(userId string, grant string, aud string, 
 
 func (dh mockImplementation) getClaims(identifier string, aud string) ([]auth.Claim, error) {
 	apps := dh.clientRegistry[identifier]
-	for _, aId := range apps {
-		if aId == aud {
-			claim, ok := dh.claimRepo[aId]
+	for _, aID := range apps {
+		if aID == aud {
+			claim, ok := dh.claimRepo[aID]
 			if ok {
 				return []auth.Claim{{Key: claim, Value: "custom-claim"}}, nil
 			}
@@ -120,13 +120,13 @@ func (dh mockImplementation) getClaims(identifier string, aud string) ([]auth.Cl
 	return nil, nil
 }
 
-func (dh mockImplementation) validateAudience(userId string, _ string, aud string) (bool, error) {
+func (dh mockImplementation) validateAudience(userID string, _ string, aud string) (bool, error) {
 	if "" == aud {
 		return true, nil
 	}
-	apps := dh.clientRegistry[userId]
-	for _, aId := range apps {
-		if aId == aud {
+	apps := dh.clientRegistry[userID]
+	for _, aID := range apps {
+		if aID == aud {
 			return true, nil
 		}
 	}

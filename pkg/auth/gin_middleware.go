@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// RequestAuthData basic data extracted from the access token
 type RequestAuthData struct {
 	Sender    string
 	Scopes    []string
@@ -16,15 +17,18 @@ type RequestAuthData struct {
 	Aud       string
 }
 
+// ReqAuthData key to find the RequestAuthData in the gin context
 const ReqAuthData = "requestAuthData"
+
+// RefreshToken key to find the refresh token in the gin context
 const RefreshToken = "refreshToken"
 
 // NewBasicMiddleware retrieves a default middleware. it will validate the jwt.
 // The only validation done to the claims is that the audience matches the appID
 // pubKey: public key corresponding to private key used by the auth server to sign the token
 // appId: resource service external identifier
-func NewBasicMiddleware(pubKey func() *ecdsa.PublicKey, appId string) func(ctx *gin.Context) {
-	return NewAuthMiddleware(pubKey, ValidateAudience(appId))
+func NewBasicMiddleware(pubKey func() *ecdsa.PublicKey, appID string) func(ctx *gin.Context) {
+	return NewAuthMiddleware(pubKey, ValidateAudience(appID))
 }
 
 // NewAuthServerMiddleware used for AuthServer to extract the Authorization header data.

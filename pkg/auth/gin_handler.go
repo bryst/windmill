@@ -28,6 +28,7 @@ type ginAuthServer struct {
 	authService TokenServer
 }
 
+// GinAuthConfig basic configuration to setup a GinAuth
 type GinAuthConfig struct {
 	UsrAuthorizer      Authorizer
 	ClientAuthorizer   Authorizer
@@ -37,20 +38,22 @@ type GinAuthConfig struct {
 	SigningKey         *ecdsa.PrivateKey
 	AccessTknDuration  time.Duration
 	RefreshTknDuration time.Duration
-	AppId              string
+	AppID              string
 }
 
+// BasicGinAuth retrieves a new GinAuth using the basic configuration
 func BasicGinAuth(c *GinAuthConfig) (GinAuth, error) {
 	signer := NewTokenSigner(&SignerConfig{
 		SigningKey:         c.SigningKey,
 		AccessTknDuration:  c.AccessTknDuration,
 		RefreshTknDuration: c.RefreshTknDuration,
-		SignerIdentifier:   c.AppId})
+		SignerIdentifier:   c.AppID})
 
 	authorizers := map[string]Authorizer{PasswordCredentials: c.UsrAuthorizer, ClientCredentials: c.ClientAuthorizer}
 	return NewGinAuth(authorizers, c.ClaimProvider, signer, c.ScopeProvider, c.AudValidator)
 }
 
+// NewGinAuth retrieves a new GinAuth
 func NewGinAuth(authorizers map[string]Authorizer, clProv ClaimProvider,
 	signer TokenSigner, scopes ScopeProvider, clients UserAudValidator) (GinAuth, error) {
 	tknServerConfig := &TokenServerConfig{
@@ -146,7 +149,7 @@ func (ginAuth *ginAuthServer) authorize(ctx *gin.Context) {
 	scopes := strings.Split(strings.TrimSpace(req.Scope), ",")
 
 	token, err := ginAuth.authService.Authorize(Credentials{
-		Id:       credentials.getName(),
+		ID:       credentials.getName(),
 		Password: credentials.getPassword(),
 		Grant:    strings.ToLower(grantType)}, scopes, req.Aud)
 
@@ -220,6 +223,7 @@ func (ginAuth *ginAuthServer) getPubKey(c *gin.Context) {
 	c.String(http.StatusOK, ginAuth.authService.GetEncodedPubKey())
 }
 
+// WithScopes creates a handler to validate the given scopes before calling the intended handler
 func WithScopes(handler gin.HandlerFunc, scopes string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		r, exists := ctx.Get(ReqAuthData)
