@@ -418,6 +418,7 @@ func (router testRouter) getPublicKey() ecdsa.PublicKey {
 	require.Equal(router.T, http.StatusOK, w.Code)
 
 	key, err := ioutil.ReadAll(w.Body)
+	require.NoError(router.T, err)
 
 	pk, err := keys.PemDecodePublicKey(string(key))
 	require.NoError(router.T, err)

@@ -79,9 +79,9 @@ type authServer struct {
 func NewTokenServer(c *TokenServerConfig) (TokenServer, error) {
 	cp := c.ClaimProvider
 	if cp == nil {
-		emtpy := []Claim{}
+		empty := []Claim{}
 		cp = func(identifier string, aud string) ([]Claim, error) {
-			return emtpy, nil
+			return empty, nil
 		}
 	}
 	pubKey := c.Signer.GetSigningKey()
