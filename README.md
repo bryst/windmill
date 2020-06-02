@@ -1,6 +1,7 @@
 # <img src="https://github.com/bryst/windmill/blob/master/.github/windmill.png" height="35"/>WINDMILL
 
 ![Go](https://github.com/bryst/windmill/workflows/Go/badge.svg?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bryst/windmill)](https://goreportcard.com/report/github.com/bryst/windmill)
 
 ```text
 ... Putting a number of small windmills throughout your orchard can scare off the birds ...
