@@ -5,8 +5,8 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"errors"
+	"github.com/bryst/windmill/pkg/auth"
 	"github.com/gin-gonic/gin"
-	"github.com/healthyorchards/windmill/pkg/auth"
 	"log"
 	"time"
 )

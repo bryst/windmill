@@ -2,7 +2,7 @@ package auth
 
 import (
 	"errors"
-	"github.com/healthyorchards/windmill/pkg/auth/keys"
+	"github.com/bryst/windmill/pkg/auth/keys"
 	"strings"
 )
 

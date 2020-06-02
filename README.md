@@ -1,6 +1,6 @@
-# <img src="https://github.com/healthyorchards/windmill/blob/master/.github/windmill.png" height="35"/>WINDMILL
+# <img src="https://github.com/bryst/windmill/blob/master/.github/windmill.png" height="35"/>WINDMILL
 
-![Go](https://github.com/healthyorchards/windmill/workflows/Go/badge.svg?branch=master)
+![Go](https://github.com/bryst/windmill/workflows/Go/badge.svg?branch=master)
 
 ```text
 ... Putting a number of small windmills throughout your orchard can scare off the birds ...
@@ -14,7 +14,7 @@ We provide abstractions to implement both the auth server flows and the resource
 
 This includes an "out of the box" implementations for both parts using [gin](https://github.com/gin-gonic/gin) framework.
 
-It is possible to use the the [TokenServer](https://github.com/healthyorchards/windmill/blob/master/pkg/auth/auth.go#L47) abstraction to implement the auth server using any other routing framework.
+It is possible to use the the [TokenServer](https://github.com/bryst/windmill/blob/master/pkg/auth/auth.go#L47) abstraction to implement the auth server using any other routing framework.
 
 In the future we might provide out of the box implementations for other frameworks.
 
@@ -147,7 +147,7 @@ func NewGinAuth(authorizers map[string]Authorizer, clProv ClaimProvider,
 ```
 #### Example
 
-Very basic Auth-Server [example](https://github.com/healthyorchards/windmill/blob/master/examples/gin/auth-server/main.go#L14)
+Very basic Auth-Server [example](https://github.com/bryst/windmill/blob/master/examples/gin/auth-server/main.go#L14)
 
 ### Gin - Resource Server
 
@@ -178,4 +178,4 @@ That function receives as many `ClaimValidation` as you want.
 
 #### Example
 
-Very basic Resourece-Server [example](https://github.com/healthyorchards/windmill/blob/master/examples/gin/resource-server/main.go#L14)
+Very basic Resourece-Server [example](https://github.com/bryst/windmill/blob/master/examples/gin/resource-server/main.go#L14)

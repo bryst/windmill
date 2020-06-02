@@ -2,9 +2,9 @@ package main
 
 import (
 	"crypto/ecdsa"
+	"github.com/bryst/windmill/pkg/auth"
+	"github.com/bryst/windmill/pkg/auth/keys"
 	"github.com/gin-gonic/gin"
-	"github.com/healthyorchards/windmill/pkg/auth"
-	"github.com/healthyorchards/windmill/pkg/auth/keys"
 	"log"
 	"net/http"
 )

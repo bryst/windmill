@@ -1,4 +1,4 @@
-module github.com/healthyorchards/windmill
+module github.com/bryst/windmill
 
 go 1.12
 
