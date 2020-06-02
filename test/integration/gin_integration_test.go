@@ -108,11 +108,11 @@ func initMockService(t *testing.T, users []demoUser, duration time.Duration, dom
 	a.AddAuthProtocol(router, authMiddleware)
 	demoPath.GET("/admin", auth.WithScopes(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"result": "you are an admin"})
-	}, []string{"admin"}))
+	}, "admin"))
 
 	demoPath.GET("/action", auth.WithScopes(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"result": "you can do the action"})
-	}, []string{"action-doer"}))
+	}, "action-doer"))
 
 	router.GET("/not-secured", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"result": "everyone can do this"})

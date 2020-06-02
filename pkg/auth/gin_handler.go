@@ -220,21 +220,21 @@ func (ginAuth *ginAuthServer) getPubKey(c *gin.Context) {
 	c.String(http.StatusOK, ginAuth.authService.GetEncodedPubKey())
 }
 
-func WithScopes(handler gin.HandlerFunc, scopes []string) gin.HandlerFunc {
+func WithScopes(handler gin.HandlerFunc, scopes string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		r, exists := ctx.Get(ReqAuthData)
 		if !exists {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid grants"})
+			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 			return
 		}
 
 		userScopes := r.(RequestAuthData).Scopes
-		if checkScopes(userScopes, scopes) {
+		if checkScopes(userScopes, strings.Split(scopes, " ")) {
 			handler(ctx)
 			return
 		}
 
-		ctx.JSON(http.StatusForbidden, gin.H{"error": "Forbidden, no valid grant"})
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 		return
 	}
 }
